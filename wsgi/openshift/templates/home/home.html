@@ -1,6 +1,92 @@
-<b>
-Yeah Django!
-This site has been edited!
-<b>
-<br />
-let's <a href="/admin">admin </a>
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+    <script type="text/javascript">
+      var app =
+      {
+        onPhoneButton : undefined,
+        onBrowserButton : undefined,
+
+        sendForm : undefined,
+        backToChoiceButton: undefined,
+
+        init : function()
+        {
+          //Save JQuery variables after the page has loaded
+          this.onPhoneButton = $('#onPhoneButton'),
+          this.onBrowserButton = $('#onBrowserButton'),
+          this.sendForm = $('#sendForm'),
+          this.backToChoiceButton = $('#backToChoiceButton');
+
+          //Setup events
+          this.onPhoneButton.click($.proxy(this.showForm, this));
+          this.onBrowserButton.click($.proxy(this.showCat, this));
+
+          this.backToChoiceButton.click($.proxy(this.showChoice, this));
+        },
+
+        showForm : function()
+        {
+          //Hide the choice buttons
+          this.onPhoneButton.hide();
+          this.onBrowserButton.hide();
+
+          //Show the form and back button
+          this.sendForm.show();
+          this.backToChoiceButton.show();
+        },
+
+        showChoice : function()
+        {
+          //Hide the form and back button
+          this.sendForm.hide();
+          this.backToChoiceButton.hide();
+
+          //Show the choice buttons
+          this.onPhoneButton.show();
+          this.onBrowserButton.show();
+        },
+
+        showCat : function()
+        {
+          //Hide choice buttons
+
+          //Make request for cats
+
+          //Show more cat button
+
+          //Show back button
+
+          console.log('Cats');
+        }
+      };
+
+      $(document).ready($.proxy(app.init, app));
+
+    </script>
+  </head>
+
+  <body>
+
+    <h2>Get Pussy</h2>
+
+    <br />
+
+    <button type="button" id="onPhoneButton">On My Phone</button>
+    <br/>
+    <button type="button" id="onBrowserButton">Right Here</button>
+
+    <form hidden id="sendForm" action="/send-pussy/" method="post">
+      <label id="phoneLabel" for="phone">Phone #</label>
+      <input id="phone" type="text" name="phoneNumber"/>
+      <input id="sendButton" type="submit" value="Send Pussy"/>
+    </form>
+    <br/>
+    <button hidden id="backToChoiceButton">Nevermind</button>
+
+  </body>
+
+</html>
