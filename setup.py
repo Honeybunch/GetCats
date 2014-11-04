@@ -3,11 +3,11 @@
 from setuptools import setup
 
 setup(
-    name='YourAppName',
+    name='Get Pussy',
     version='1.0',
-    description='OpenShift App',
-    author='Your Name',
-    author_email='example@example.com',
-    url='http://www.python.org/sigs/distutils-sig/',
+    description='Your source for cat pics and facts',
+    author='Arsen Tufankjian & Evan Albitz',
+    author_email='amt3824@g.rit.edu & ema4166@g.rit.edu',
+    url='http://www.getpussy.me',
     install_requires=['Django<=1.4'],
 )
