@@ -8,6 +8,7 @@ urlpatterns = patterns('',
     # Examples:
     url(r'^$', 'openshift.views.home', name='home'),
     url(r'^getCat/', 'openshift.views.getCat', name='getCat'),
+    url(r'^sendCat/', 'openshift.views.sendCat', name='sendCat'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

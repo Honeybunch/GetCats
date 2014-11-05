@@ -1,4 +1,5 @@
 import os
+import urllib
 import urllib2
 import json
 import sys
@@ -13,22 +14,52 @@ from email.mime.multipart import MIMEMultipart
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse
-from django import forms
+from django.views.decorators.csrf import csrf_exempt, csrf_protect, ensure_csrf_cookie
 
+@ensure_csrf_cookie
 def home(request):
-    return render_to_response('home/home.html')
+    return render_to_response("home/home.html")
 
 def getCat(request):
 
-    if request.method == 'GET':
+    if request.method == "GET":
         response = HttpResponse(getRandomCat())
+        return response
+    else:
+		return HttpResponse("You're in the wrong place")
+	
+@csrf_protect	
+def sendCat(request):
+    if request.method == "POST":
+        #Data for posting
+        api_user = "aarsentufsc2842"
+        api_key = "apikey"
+        
+        #Get user info
+        phoneNumber = request.POST.get("phoneNumber", "")
+        carrier = request.POST["carrier"]
+        
+        #Get cat data
+        catData = json.loads(getRandomCat())
+        catImageUrl = catData["image"]
+        catFact = catData["fact"]
+		
+        apiDataString = "api_user=" + api_user + "&api_key=" + api_key + "&to=" + phoneNumber + "@" + carrier + "&toname=Pussy Lover&subject=Requested Pussy" + "&text=" + catFact + "&from=getpussy.me"
+		
+        print apiDataString
+        
+        postResponse = urllib2.urlopen("https://api.sendgrid.com/api/mail.send.json", apiDataString)
+        
+        response = HttpResponse(postResponse)
+        
         response["Access-Control-Allow-Origin"] = "*"  
-        response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"  
+        response["Access-Control-Allow-Methods"] = "POST, OPTIONS"  
         response["Access-Control-Max-Age"] = "1000"  
         response["Access-Control-Allow-Headers"] = "*" 
         return response
     else:
-		return HttpResponse("You're in the wrong place")
+        return HttpResponse("You're in the wrong place")
+
 		
 def getRandomCat():
     catImage = ""

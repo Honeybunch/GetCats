@@ -2,9 +2,24 @@
 <html>
 
   <head>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="static/js/jquery-2.1.1.min.js"></script>
+	<script src="static/js/jquery.cookie.js"></script>
 
-    <script type="text/javascript">
+    <script type="text/javascript">	
+	  var csfrHelper = 
+	  {
+		getToken : function()
+		{
+			return $.cookie('csrftoken');
+		},
+	  
+		safeMethod : function(method)
+		{
+			// these HTTP methods do not require CSRF protection
+			return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+		},
+	  }
+	
       var app =
       {
 		startArea : undefined,
@@ -13,6 +28,8 @@
 
 		sendArea : undefined,
 		sendButton :undefined,
+		phoneNumberField : undefined,
+		carrierSelect : undefined,
         backToStartFromSendButton: undefined,
 		
 		catArea : undefined,
@@ -27,6 +44,8 @@
 			
 			this.sendArea = $('#sendArea');
 			this.sendButton = $('#sendButton');
+			this.phoneNumberField = $('#phoneNumberField');
+			this.carrierSelect = $('#carrierSelect');
 			this.backToStartFromSendButton = $('#backToStartFromSendButton');
 			
 			this.catArea = $('#catArea');
@@ -74,29 +93,56 @@
         },
 		
 		sendCat : function()
-		{
-			var mmsData = 
+		{		
+			var phoneNumber = this.phoneNumberField.val();		
+			if(phoneNumber.length < 10)
 			{
-				api_user : 'aarsentufsc2842',
-				api_key : 'apikey',
-				to : '2074098159@tmomail.net',
-				toname : 'Pussy Lover',
-				subject : 'Requested Pussy',
-				text : 'Example Cat Fact',
-				from : 'getpussy.me'
+				console.log('Need a 10 digit phone number');
+				return;
+			}
+		
+			var currentCarrier = this.carrierSelect.val();
+			if(currentCarrier == 'carrier')
+			{
+				console.log('Select a real carrier');
+				return;
+			}
+		
+			var phoneData = 
+			{
+				phoneNumber : phoneNumber,
+				carrier : currentCarrier
 			};
 		
+			$.ajaxSetup({
+				beforeSend: function(xhr, settings){
+					if(!csfrHelper.safeMethod(settings.type) && !this.crossDomain)
+					{
+						xhr.setRequestHeader('X-CSRFToken', csfrHelper.getToken());
+					}
+				}
+			});
+		
 			$.ajax({type: 'POST',
-					url: 'https://api.sendgrid.com/api/mail.send.json',
-					data: mmsData,
-					success: function(result){this.sendCatResult(result);},
-					dataType: 'json'
+					url: '/sendCat/',
+					data: phoneData,
+					dataType: 'json',
+					success: function(result, textStatus, jqXHR){app.sendCatResult(result);},
+					error: function(result, textStatus, errorThrown){console.log(result);}
 				});
 		},
 		
 		sendCatResult : function(result)
 		{
-			console.log('test');
+			if(result.message == 'success')
+			{
+				console.log(result.message);
+			}
+			else
+			{
+				console.log('Error sending pussy!');
+				console.log(result.error);
+			}
 		}
 		
       };
@@ -119,8 +165,13 @@
 	</div>
 
     <div hidden id="sendArea">
-		<label id="phoneLabel" for="phone">Phone #</label>
-		<input id="phone" type="text" name="phoneNumber"/>
+		<label id="phoneLabel" for="phoneNumberField">Phone #:</label>
+		<input id="phoneNumberField" type="text" name="phoneNumber"/>
+		<select id="carrierSelect">
+			<option selected value="carrier">Carrier</option>
+			<option value="tomail.net">T-Mobile</option>
+			<option value="txt.att.net">AT&T</option>
+		</select>
 		<button type="button" id="sendButton">Send</button>
 		<br/>
 		<button id="backToStartFromSendButton">Nevermind</button>
