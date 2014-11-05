@@ -21,8 +21,12 @@ def home(request):
 def getCat(request):
 
     if request.method == 'GET':
-    
-        return HttpResponse(getRandomCat())
+        response = HttpResponse(getRandomCat())
+        response["Access-Control-Allow-Origin"] = "*"  
+        response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"  
+        response["Access-Control-Max-Age"] = "1000"  
+        response["Access-Control-Allow-Headers"] = "*" 
+        return response
     else:
 		return HttpResponse("You're in the wrong place")
 		
