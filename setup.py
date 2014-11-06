@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(
-    name='GetPussy',
+    name='Get Pussy',
     version='1.0',
     description='Your source for cat pics and facts',
     author='Arsen Tufankjian & Evan Albitz',
