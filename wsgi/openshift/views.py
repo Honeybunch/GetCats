@@ -3,7 +3,8 @@ import urllib
 import urllib2
 import json
 import sys
-import smtplib
+import base64
+import sendgrid
 
 from xml.dom import minidom
 
@@ -44,11 +45,21 @@ def sendCat(request):
         catImageUrl = catData["image"]
         catFact = catData["fact"]
 		
-        apiDataString = "api_user=" + api_user + "&api_key=" + api_key + "&to=" + phoneNumber + "@" + carrier + "&toname=Pussy Lover&subject=Requested Pussy" + "&text=" + catFact + "&from=getpussy.me"
+		#Download cat image
+        urllib.urlretrieve(catImageUrl, "catImage.jpg");
+        catImage = open("./catImage.jpg", "rb")
+        encodedCatImage = base64.b64encode(catImage.read())
 		
-        print apiDataString
+        sgClient = sendgrid.SendGridClient(api_user, api_key)
+		
+        message = sendgrid.Mail()
+        message.add_to("Cat Lover <"+phoneNumber + "@" + carrier +">")
+        message.set_subject("Requested Cat")
+        message.set_text(catFact)
+        message.set_from("getcats.me")
+        message.add_attachment('catImage.jpg', open('./catImage.jpg', 'rb'))
         
-        postResponse = urllib2.urlopen("https://api.sendgrid.com/api/mail.send.json", apiDataString)
+        status, postResponse = sgClient.send(message)
         
         response = HttpResponse(postResponse)
         
