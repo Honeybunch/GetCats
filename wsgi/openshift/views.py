@@ -3,8 +3,8 @@ import urllib
 import urllib2
 import json
 import sys
-import base64
 import sendgrid
+import cStringIO
 
 from xml.dom import minidom
 
@@ -46,9 +46,7 @@ def sendCat(request):
         catFact = catData["fact"]
 		
 		#Download cat image
-        urllib.urlretrieve(catImageUrl, "catImage.jpg");
-        catImage = open("./catImage.jpg", "rb")
-        encodedCatImage = base64.b64encode(catImage.read())
+        catImage = cStringIO.StringIO(urllib.urlopen(catImageUrl).read())
 		
         sgClient = sendgrid.SendGridClient(api_user, api_key)
 		
@@ -57,7 +55,7 @@ def sendCat(request):
         message.set_subject("Requested Cat")
         message.set_text(catFact)
         message.set_from("getcats.me")
-        message.add_attachment('catImage.jpg', open('./catImage.jpg', 'rb'))
+        message.add_attachment('catImage.jpg', catImage)
         
         status, postResponse = sgClient.send(message)
         
