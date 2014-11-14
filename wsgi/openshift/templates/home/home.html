@@ -5,21 +5,21 @@
     <script src="static/js/jquery-2.1.1.min.js"></script>
 	<script src="static/js/jquery.cookie.js"></script>
 
-    <script type="text/javascript">	
-	  var csfrHelper = 
+    <script type="text/javascript">
+	  var csfrHelper =
 	  {
 		getToken : function()
 		{
 			return $.cookie('csrftoken');
 		},
-	  
+
 		safeMethod : function(method)
 		{
 			// these HTTP methods do not require CSRF protection
 			return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 		},
 	  }
-	
+
       var app =
       {
 		startArea : undefined,
@@ -31,7 +31,7 @@
 		phoneNumberField : undefined,
 		carrierSelect : undefined,
         backToStartFromSendButton: undefined,
-		
+
 		catArea : undefined,
 		backToStartFromCatButton : undefined,
 
@@ -41,23 +41,23 @@
 			this.startArea = $('#startArea');
 			this.onPhoneButton = $('#onPhoneButton');
 			this.onBrowserButton = $('#onBrowserButton');
-			
+
 			this.sendArea = $('#sendArea');
 			this.sendButton = $('#sendButton');
 			this.phoneNumberField = $('#phoneNumberField');
 			this.carrierSelect = $('#carrierSelect');
 			this.backToStartFromSendButton = $('#backToStartFromSendButton');
-			
+
 			this.catArea = $('#catArea');
 			this.backToStartFromCatButton = $('#backToStartFromCatButton');
-	
+
 			//Setup events
 			this.onPhoneButton.click($.proxy(this.showSend, this));
 			this.onBrowserButton.click($.proxy(this.showCat, this));
-	
+
 			this.sendButton.click($.proxy(this.sendCat, this));
 			this.backToStartFromSendButton.click($.proxy(this.showStart, this));
-			
+
 			this.backToStartFromCatButton.click($.proxy(this.showStart, this));
         },
 
@@ -66,17 +66,17 @@
 			//Hide the form and back button
 			this.sendArea.hide();
 			this.catArea.hide();
-	
+
 			//Show the choice buttons
 			this.startArea.show();
         },
-		
+
         showSend : function()
         {
 			//Hide the start buttons
 			this.startArea.hide();
 			this.catArea.hide();
-	
+
 			//Show the sending area
 			this.sendArea.show()
         },
@@ -85,35 +85,35 @@
         {
 			//Hide start area
 			this.startArea.hide();
-	
+
 			//Make request for cats
-			
+
 			//Show cat area
 			this.catArea.show();
         },
-		
+
 		sendCat : function()
-		{		
-			var phoneNumber = this.phoneNumberField.val();		
+		{
+			var phoneNumber = this.phoneNumberField.val();
 			if(phoneNumber.length < 10)
 			{
 				console.log('Need a 10 digit phone number');
 				return;
 			}
-		
+
 			var currentCarrier = this.carrierSelect.val();
 			if(currentCarrier == 'carrier')
 			{
 				console.log('Select a real carrier');
 				return;
 			}
-		
-			var phoneData = 
+
+			var phoneData =
 			{
 				phoneNumber : phoneNumber,
 				carrier : currentCarrier
 			};
-		
+
 			$.ajaxSetup({
 				beforeSend: function(xhr, settings){
 					if(!csfrHelper.safeMethod(settings.type) && !this.crossDomain)
@@ -122,7 +122,7 @@
 					}
 				}
 			});
-		
+
 			$.ajax({type: 'POST',
 					url: '/sendCat/',
 					data: phoneData,
@@ -131,7 +131,7 @@
 					error: function(result, textStatus, errorThrown){console.log(result);}
 				});
 		},
-		
+
 		sendCatResult : function(result)
 		{
 			if(result.message == 'success')
@@ -144,7 +144,7 @@
 				console.log(result.error);
 			}
 		}
-		
+
       };
 
       $(document).ready($.proxy(app.init, app));
@@ -169,10 +169,10 @@
 		<input id="phoneNumberField" type="text" name="phoneNumber"/>
 		<select id="carrierSelect">
 			<option selected value="carrier">Carrier</option>
-			<option value="tmomail.net">T-Mobile</option>
-			<option value="txt.att.net">AT & T</option>
-			<option value="vtext.com">Verizon</option>
-			<option value="messaging.sprintpcs.com">Sprint</option>
+			<option value="T-Mobile">T-Mobile</option>
+			<option value="AT&T">AT&T</option>
+			<option value="Verizon">Verizon</option>
+			<option value="Sprint">Sprint</option>
 		</select>
 		<button type="button" id="sendButton">Send</button>
 		<br/>
@@ -182,7 +182,7 @@
 	<div hidden id="catArea">
 		<button id="backToStartFromCatButton">That's Enough</button>
 	</div>
-	
+
   </body>
 
 </html>

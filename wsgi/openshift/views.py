@@ -17,6 +17,14 @@ from django.http import HttpResponseRedirect
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt, csrf_protect, ensure_csrf_cookie
 
+#Create a bunch of carrier data
+verizon = {"name":"Verizon", "sms":"vtext.com", "mms":"vzwpix.com"}
+att = {"name":"AT&T", "sms":"txt.att.net","mms":"txt.att.net"}
+tmobile = {"name":"T-Mobile", "sms":"tmomail.net", "mms":"tmomail.net"}
+sprint = {"name":"Sprint", "sms":"messaging.sprintpcs.com","mms":"messaging.sprintpcs.com"}
+
+carriers = [verizon, att, tmobile, sprint]
+
 @ensure_csrf_cookie
 def home(request):
     return render_to_response("home/home.html")
@@ -28,48 +36,62 @@ def getCat(request):
         return response
     else:
 		return HttpResponse("You're in the wrong place")
-	
-@csrf_protect	
+
+@csrf_protect
 def sendCat(request):
     if request.method == "POST":
         #Data for posting
         api_user = "aarsentufsc2842"
         api_key = "apikey"
-        
+
         #Get user info
         phoneNumber = request.POST.get("phoneNumber", "")
         carrier = request.POST["carrier"]
-        
+
         #Get cat data
         catData = json.loads(getRandomCat())
         catImageUrl = catData["image"]
         catFact = catData["fact"]
-		
-		#Download cat image
+
+        #Download cat image
         catImage = cStringIO.StringIO(urllib.urlopen(catImageUrl).read())
-		
+
+        #Init sendgrid API
         sgClient = sendgrid.SendGridClient(api_user, api_key)
-		
-        message = sendgrid.Mail()
-        message.add_to("Cat Lover <"+phoneNumber + "@" + carrier +">")
-        message.set_subject("Requested Cat")
-        message.set_text(catFact)
-        message.set_from("getcats.me")
-        message.add_attachment('catImage.jpg', catImage)
-        
+
+        #Determine which carrier we are sending to and how many emails we need to send
+        for c in carriers:
+          if carrier == c["name"]:
+
+            print phoneNumber + "@" + c["sms"]
+
+            message = sendgrid.Mail()
+            message.add_to("Cat Lover <"+phoneNumber + "@" + c["sms"] +">")
+            message.set_subject("Requested Cat")
+            message.set_text(catFact)
+            message.set_from("getcats.me")
+            message.add_attachment('catImage.jpg', catImage)
+
+            #If the sms and mms targets aren't the same, we have to send this to two targets
+            if(c["sms"] != c["mms"]):
+              print phoneNumber + "@" + c["mms"]
+              message.add_to("Cat Lover <"+phoneNumber + "@" + c["mms"] +">")
+
+            break;
+
         status, postResponse = sgClient.send(message)
-        
+
         response = HttpResponse(postResponse)
-        
-        response["Access-Control-Allow-Origin"] = "*"  
-        response["Access-Control-Allow-Methods"] = "POST, OPTIONS"  
-        response["Access-Control-Max-Age"] = "1000"  
-        response["Access-Control-Allow-Headers"] = "*" 
+
+        response["Access-Control-Allow-Origin"] = "*"
+        response["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+        response["Access-Control-Max-Age"] = "1000"
+        response["Access-Control-Allow-Headers"] = "*"
         return response
     else:
         return HttpResponse("You're in the wrong place")
 
-		
+
 def getRandomCat():
     catImage = ""
     catFact = ""
@@ -85,14 +107,14 @@ def getRandomCat():
     catResponseImage = findChildNodeByName(catResponseImages, "image")
     catResponseURL = findChildNodeByName(catResponseImage, "url")
     catImageSRC = catResponseURL.childNodes[0].nodeValue
-	
+
 	#Parse fact response
     catFactJSON = json.loads(catFactResponse)
-    
+
     #Check if everything went okay
     if not catImageSRC == None and not catImageSRC.endswith(".jpg"):
         return "{\"success\":false, \"error\":\"bad image\"}"
-		
+
     if catFactJSON["success"] != "true":
         return "{\"success\":false, \"error\":\"bad fact\"}"
 
@@ -102,7 +124,7 @@ def getRandomCat():
 
     #Return JSON blob
     response = "{\"success\":true , \"image\": \""+catImageSRC+"\" , \"fact\" : \""+catFact+"\"}"
-	
+
     return response
 
 #Gets the first child node
