@@ -63,23 +63,48 @@ def sendCat(request):
         for c in carriers:
           if carrier == c["name"]:
 
-            print phoneNumber + "@" + c["sms"]
+            #If the sms and mms targets are the same, we just send one message
+            if(c["sms"] == c["mms"]):
+              print phoneNumber + "@" + c["sms"]
 
-            message = sendgrid.Mail()
-            message.add_to("Cat Lover <"+phoneNumber + "@" + c["sms"] +">")
-            message.set_subject("Requested Cat")
-            message.set_text(catFact)
-            message.set_from("getcats.me")
-            message.add_attachment('catImage.jpg', catImage)
+              message = sendgrid.Mail()
+              message.add_to("Cat Lover <"+phoneNumber + "@" + c["sms"] +">")
+              message.set_subject("Requested Cat")
+              message.set_text(catFact)
+              message.set_from("getcats.me")
+              message.add_attachment('catImage.jpg', catImage)
 
-            #If the sms and mms targets aren't the same, we have to send this to two targets
-            if(c["sms"] != c["mms"]):
+              status, postResponse = sgClient.send(message)
+
+            #Otherwise we have to send two messages; one for the sms target and one for the mms
+            else:
+              print phoneNumber + "@" + c["sms"]
               print phoneNumber + "@" + c["mms"]
-              message.add_to("Cat Lover <"+phoneNumber + "@" + c["mms"] +">")
+
+              smsMessage = sendgrid.Mail()
+              mmsMessage = sendgrid.Mail()
+
+              smsMessage.add_to("Cat Lover <"+phoneNumber + "@" + c["sms"] +">")
+              smsMessage.set_subject("Requested Cat")
+              smsMessage.set_text(catFact)
+              smsMessage.set_from("getcats.me")
+
+              smsStatus, smsPostResponse = sgClient.send(smsMessage)
+
+              mmsMessage.add_to("Cat Lover <"+phoneNumber + "@" + c["mms"] +">")
+              mmsMessage.set_subject("Requested Cat")
+              mmsMessage.set_text(" ")
+              mmsMessage.add_attachment('catImage.jpg', catImage)
+              mmsMessage.set_from("getcats.me")
+
+              mmsStatus, mmsPostResponse = sgClient.send(mmsMessage)
+
+              postResponse = mmsPostResponse
+
+              #TODO handle a scenerio where one post works and the other fails
+              #this should result in overall failure sent to the client
 
             break;
-
-        status, postResponse = sgClient.send(message)
 
         response = HttpResponse(postResponse)
 
