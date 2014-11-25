@@ -2,6 +2,9 @@
 <html>
 
   <head>
+	
+	<link rel="stylesheet" type="text/css" href="static/css/style.css">
+  
     <script src="static/js/jquery-2.1.1.min.js"></script>
 	<script src="static/js/jquery.cookie.js"></script>
 
@@ -34,6 +37,9 @@
 
 		catArea : undefined,
 		backToStartFromCatButton : undefined,
+		
+		catFact : undefined,
+		catImage : undefined,
 
         init : function()
         {
@@ -80,18 +86,62 @@
 			this.catArea.hide();
 
 			//Show the sending area
-			this.sendArea.show()
+			this.sendArea.show();
         },
+		
+		getCat : function(catData)
+		{
+			console.log("catData: " + catData);
+			app.catFact = catData.fact;
+			app.catImage = catData.image;
+			
+			var data = "<p>" + this.catFact + "</p><br>";
+			data += "<img src=" + this.catImage + ">";
+			
+			document.querySelector("#catContent").innerHTML = data;
+			
+			debugger;
+		},
 
         showCat : function()
         {
 			//Hide start area
 			this.startArea.hide();
-
-			//Make request for cats
-
+			
 			//Show cat area
 			this.catArea.show();
+			
+			//pick a random loading phrase
+			var loadingPhrase = Math.floor(Math.random()* 10 + 1);
+			if(loadingPhrase == 1)
+				loadingPhrase = "Your cat will be right with you.";
+			else if(loadingPhrase == 2)
+				loadingPhrase = "Fetching yarn.";
+			else if(loadingPhrase == 3)
+				loadingPhrase = "The adoption papers are almost complete.";
+			else if(loadingPhrase == 4)
+				loadingPhrase = "We're searching high and low for your cat.";
+			else if(loadingPhrase == 5)
+				loadingPhrase = "Disturbing naptime.";
+			else if(loadingPhrase == 6)
+				loadingPhrase = "Gathering fluff.";
+			else if(loadingPhrase == 7)
+				loadingPhrase = "Applying whiskers.";
+			else if(loadingPhrase == 8)
+				loadingPhrase = "Your order is currently hunting mice.";
+			else if(loadingPhrase == 9)
+				loadingPhrase = "Searching adultcatfinder.com";
+			else
+				loadingPhrase = "Order up!";
+			
+			document.querySelector("#catContent").innerHTML = loadingPhrase;
+
+			//Make request for cats
+			$.getJSON('/getCat/').done(function(data){app.getCat(data);});
+			
+			//debugger;
+			
+			
         },
 
 		sendCat : function()
@@ -161,6 +211,7 @@
     <br />
 
 	<div id="startArea">
+	
     <button type="button" id="onPhoneButton">On My Phone</button>
     <br/>
     <button type="button" id="onBrowserButton">Right Here</button>
@@ -182,6 +233,8 @@
 	</div>
 
 	<div hidden id="catArea">
+		<div id="catContent">
+		</div>
 		<button id="backToStartFromCatButton">That's Enough</button>
 	</div>
 
