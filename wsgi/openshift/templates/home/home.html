@@ -36,6 +36,7 @@
         backToStartFromSendButton: undefined,
 
 		catArea : undefined,
+		lastFactButton: undefined,
 		newFactButton: undefined,
 		backToStartFromCatButton : undefined,
 		
@@ -53,10 +54,11 @@
 			this.sendButton = $('#sendButton');
 			this.phoneNumberField = $('#phoneNumberField');
 			this.carrierSelect = $('#carrierSelect');
-			this.newFactButton = $('#newFactButton');
 			this.backToStartFromSendButton = $('#backToStartFromSendButton');
 
 			this.catArea = $('#catArea')
+			this.lastFactButton = $('#lastFactButton');
+			this.newFactButton = $('#newFactButton');
 			this.backToStartFromCatButton = $('#backToStartFromCatButton');
 
 			//Setup events
@@ -65,7 +67,8 @@
 
 			this.sendButton.click($.proxy(this.sendCat, this));
 			this.backToStartFromSendButton.click($.proxy(this.showStart, this));
-
+			
+			this.lastFactButton.click($.proxy(this.lastFact,this));
 			this.newFactButton.click($.proxy(this.showCat, this));
 			this.backToStartFromCatButton.click($.proxy(this.showStart, this));
 			
@@ -94,6 +97,8 @@
 		
 		getCat : function(catData)
 		{
+			sessionStorage.lastFact = app.catFact;
+		
 			console.log("catData: " + catData);
 			app.catFact = catData.fact;
 			app.catImage = catData.image;
@@ -102,8 +107,17 @@
 			data += "<img src=" + this.catImage + ">";
 			
 			document.querySelector("#catContent").innerHTML = data;
-			
-			debugger;
+		},
+		
+		lastFact : function()
+		{
+			if(sessionStorage.lastFact)
+			{
+				var data = "<p>" + sessionStorage.lastFact + "</p><br>";
+				data += "<img src=" + this.catImage + ">";
+				
+				document.querySelector("#catContent").innerHTML = data;
+			}
 		},
 
         showCat : function()
@@ -141,8 +155,6 @@
 
 			//Make request for cats
 			$.getJSON('/getCat/').done(function(data){app.getCat(data);});
-			
-			//debugger;
 			
 			
         },
@@ -242,6 +254,7 @@
 		<div id="catContent">
 		</div>
 		<ul>
+			<li><button id="lastFactButton">Last Fact</button></li>
 			<li><button id="newFactButton">New Fact</button></li>
 			<li><button id="backToStartFromCatButton">That's Enough</button></li>
 		</ul>
