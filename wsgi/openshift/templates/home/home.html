@@ -36,6 +36,7 @@
         backToStartFromSendButton: undefined,
 
 		catArea : undefined,
+		newFactButton: undefined,
 		backToStartFromCatButton : undefined,
 		
 		catFact : undefined,
@@ -52,9 +53,10 @@
 			this.sendButton = $('#sendButton');
 			this.phoneNumberField = $('#phoneNumberField');
 			this.carrierSelect = $('#carrierSelect');
+			this.newFactButton = $('#newFactButton');
 			this.backToStartFromSendButton = $('#backToStartFromSendButton');
 
-			this.catArea = $('#catArea');
+			this.catArea = $('#catArea')
 			this.backToStartFromCatButton = $('#backToStartFromCatButton');
 
 			//Setup events
@@ -64,6 +66,7 @@
 			this.sendButton.click($.proxy(this.sendCat, this));
 			this.backToStartFromSendButton.click($.proxy(this.showStart, this));
 
+			this.newFactButton.click($.proxy(this.showCat, this));
 			this.backToStartFromCatButton.click($.proxy(this.showStart, this));
 			
 			console.log('test');
@@ -206,15 +209,16 @@
 
   <body>
 
-    <h2>Get Cats</h2>
+    <h2 id="getCats">getCats</h2>
 
     <br />
 
 	<div id="startArea">
 	
-    <button type="button" id="onPhoneButton">On My Phone</button>
-    <br/>
-    <button type="button" id="onBrowserButton">Right Here</button>
+	<ul>
+		<li><button type="button" id="onPhoneButton">My Phone</button></li>
+		<li><button type="button" id="onBrowserButton">Right Here</button></li>
+	</ul>
 	</div>
 
     <div hidden id="sendArea">
@@ -227,15 +231,20 @@
 			<option value="Verizon">Verizon</option>
 			<option value="Sprint">Sprint</option>
 		</select>
-		<button type="button" id="sendButton">Send</button>
-		<br/>
-		<button id="backToStartFromSendButton">Nevermind</button>
+		<br>
+		<ul>
+			<li><button type="button" id="sendButton">Send</button></li>
+			<li><button id="backToStartFromSendButton">Nope</button></li>
+		</ul>
 	</div>
 
 	<div hidden id="catArea">
 		<div id="catContent">
 		</div>
-		<button id="backToStartFromCatButton">That's Enough</button>
+		<ul>
+			<li><button id="newFactButton">New Fact</button></li>
+			<li><button id="backToStartFromCatButton">That's Enough</button></li>
+		</ul>
 	</div>
 
   </body>
